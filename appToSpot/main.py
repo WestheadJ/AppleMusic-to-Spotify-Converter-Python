@@ -16,6 +16,7 @@ except:
 if(r.status_code == 404):
     raise Exception("URL is incorrect, please check if URL is correct")
 else:
+
     # Parsing the HTML
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -25,6 +26,7 @@ else:
     tracks = []
     songsToAdd = []
 
+    # Spotify authentication
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI,scope=SCOPE))
 
     playlist_name = input("Enter a playlist name: ")
@@ -49,10 +51,6 @@ else:
         tracks.append(i.string)
 
     count = 1
-    for i in tracks:
-        count += 1
-
-    count = 1
     for item in trackArtistItems:
         songsToAdd.append([item[0].string, tracks[count - 1]])
         count += 1
@@ -74,3 +72,4 @@ else:
     playlistID = getRecentPlaylist['items'][0]['id']
 
     sp.user_playlist_add_tracks(user=username, playlist_id=playlistID, tracks=tracksQuery)
+    print("All songs not found have been added to a .txt file , check the most recent file")
