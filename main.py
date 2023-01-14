@@ -8,6 +8,9 @@ from colours import color
 import glob
 import os
 
+# Spotify authentication
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI,scope=SCOPE))
+
 logsDirectory = os.getcwd()+"/logs"
 
 if not os.path.exists(logsDirectory):
@@ -24,7 +27,7 @@ except:
 if(r.status_code == 404):
     raise Exception("URL is incorrect, please check if URL is correct")
 else:
-    print(color.SUCCESS+"Playlist found!    ")
+    print(color.SUCCESS+"Playlist found!")
     # Parsing the HTML
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -33,9 +36,6 @@ else:
     trackArtistItems = []
     tracks = []
     songsToAdd = []
-
-    # Spotify authentication
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI,scope=SCOPE))
 
     playlist_name = input("Enter a playlist name: ")
     playlist_description = input("Enter a playlist description: ")
