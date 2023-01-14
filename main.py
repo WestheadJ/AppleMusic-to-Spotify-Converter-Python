@@ -4,6 +4,14 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from configs import CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,SCOPE,username
 import datetime
+from colours import color
+import glob
+import os
+
+logsDirectory = os.getcwd()+"/logs"
+
+if not os.path.exists(logsDirectory):
+    os.makedirs(logsDirectory)
 
 # Making a GET request
 try:
@@ -16,7 +24,7 @@ except:
 if(r.status_code == 404):
     raise Exception("URL is incorrect, please check if URL is correct")
 else:
-
+    print(color.SUCCESS+"Playlist found!    ")
     # Parsing the HTML
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -62,14 +70,22 @@ else:
         if (len(result['tracks']['items']) != 0):
             tracksQuery.append(result['tracks']['items'][0]['uri'])
         else:
-            print("Could not find song", track[1], "by", track[0])
+            print(color.ERROR +"Could not find song", color.KEY + track[1], "by", track[0])
             notFound.append("Could not find song " + track[1] + " by " + track[0])
-    out_file = open(str(datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f"))+".txt", "w")
+    
+    out_file = open(str(logsDirectory+"/"+datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f"))+".txt", "w")
     for missedTrack in notFound:
         out_file.writelines(missedTrack+"\n")
     out_file.close()
-    getRecentPlaylist = sp.user_playlists("lt3wbutw7ie0cz0u1mrei63e2")
+    getRecentPlaylist = sp.user_playlists(username)
     playlistID = getRecentPlaylist['items'][0]['id']
 
     sp.user_playlist_add_tracks(user=username, playlist_id=playlistID, tracks=tracksQuery)
-    print("All songs not found have been added to a .txt file , check the most recent file")
+    
+    list_of_files = glob.glob(logsDirectory)
+    latest_file = max(list_of_files, key=os.path.getctime)
+
+    if(len(notFound)==0):
+        print(color.SUCCESS + "All songs added onto your new spotify playlist",playlist_name)
+    else:
+        print(color.ERROR +"All songs that can't be found have been added to {latest_file} in /logs")
