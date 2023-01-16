@@ -52,8 +52,6 @@ class SpotifyInterface:
             if (len(result['tracks']['items']) != 0):
                 tracksQuery.append(result['tracks']['items'][0]['uri'])
             else:
-                print(track)
-                print(result)
                 print(colorMessage(color.ERROR, "Could not find song"),
                       colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
                 notFound.append("Could not find song " + track[1] + " by " + track[0])
