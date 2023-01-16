@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from configs import CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,SCOPE,USERNAME
-from Colours import color, colorMessage
+from colours import color, colorMessage
 import os
 from SpotifyInterface import SpotifyInterface
 

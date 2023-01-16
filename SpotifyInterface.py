@@ -1,6 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from Colours import color,colorMessage
+from colours import color,colorMessage
 import datetime
 import glob
 import os
@@ -14,7 +14,7 @@ class PrivacyException(Exception):
 
 class SpotifyInterface:
 
-    def __init__(self,clientID,clientSecret,scope,username,redirectURI):
+    def __init__(self, clientID, clientSecret, scope, username, redirectURI):
         self.username = username
         self.CLIENT_ID = clientID
         self.CLIENT_SECRET = clientSecret
@@ -31,7 +31,7 @@ class SpotifyInterface:
 
     logsDirectory = os.getcwd() + "/logs"
 
-    def CreatePlaylist(self,playlist_name,playlist_description,playlist_privacy):
+    def CreatePlaylist(self, playlist_name, playlist_description, playlist_privacy):
         if (playlist_privacy.lower() == "public"):
             self.playlistPublicy = True
         elif (playlist_privacy.lower() == "private"):
@@ -41,7 +41,7 @@ class SpotifyInterface:
         else:
             raise PrivacyException
         
-        self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy,description=playlist_description)
+        self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy, description=playlist_description)
 
     def LogTracks(self, tracks):
         out_file = open(
@@ -58,7 +58,7 @@ class SpotifyInterface:
         else:
             print(colorMessage(color.ERROR, f"All songs that can't be found have been added to {latest_file} in /logs"))
 
-    def AddToPlaylist(self,tracks):
+    def AddToPlaylist(self, tracks):
         tracksQuery = []
         notFound = []
         for track in tracks:
