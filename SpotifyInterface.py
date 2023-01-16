@@ -9,7 +9,7 @@ import os
 class PrivacyException(Exception):
     "Raised when the Playlist privacy input is incorrectly entered"
     def __init__(self):
-        message = f"You need to have entered public or private as your playlists type\nYou Entered: {playlist_privacy}"
+        message = f"You need to have entered public or private as your playlists type\nYou Entered: {self.playlist_privacy}"
         print(colorMessage(color.ERROR, message))
 
 class SpotifyInterface:
@@ -74,6 +74,7 @@ class SpotifyInterface:
         playlistID = getRecentPlaylist['items'][0]['id']
         print(tracks)
         print(tracksQuery)
-        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
+        print(playlistID)
+        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery, position=None)
         self.LogTracks(notFound)
 
