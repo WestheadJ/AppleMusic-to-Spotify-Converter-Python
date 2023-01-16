@@ -1,17 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from configs import CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,SCOPE,USERNAME
-import datetime
 from Colours import color, colorMessage
-import glob
 import os
 from SpotifyInterface import SpotifyInterface
 
 # Created custom exception for URL
 class InvalidURLException(Exception):
-    "Raised when an invalid URL (non apple music link) is entered"
+    "Raised when an invalid URL (non Apple Music link) is entered"
     def __init__(self):
         message = """
         Error URL is incorrect!!! This means that it may not contain,
