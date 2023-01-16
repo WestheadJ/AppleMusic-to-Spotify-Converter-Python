@@ -1,0 +1,5 @@
+- Creating a change log
+- Added an interface class for working with spotipy and spotify
+- Added a configs section in the read.me
+- Exceptions were added for custom error messages
+- Colours were added to distinguish errors, successes and identifiers
