@@ -66,10 +66,14 @@ class SpotifyInterface:
             if (len(result['tracks']['items']) != 0):
                 tracksQuery.append(result['tracks']['items'][0]['uri'])
             else:
-                print(colorMessage(color.ERROR, "Could not find song"), colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                print(colorMessage(color.ERROR, "Could not find song"),
+                      colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
                 notFound.append("Could not find song " + track[1] + " by " + track[0])
+
         getRecentPlaylist = self.sp.user_playlists(self.USERNAME)
         playlistID = getRecentPlaylist['items'][0]['id']
-        self.sp.user_playlist_add_tracks(user=self.USERNAME, playlist_id=playlistID, tracks=tracksQuery)
+        print(tracks)
+        print(tracksQuery)
+        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
         self.LogTracks(notFound)
 
