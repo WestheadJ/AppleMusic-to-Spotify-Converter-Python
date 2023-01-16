@@ -1,5 +1,9 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from Colours import color,colorMessage
+import datetime
+import glob
+import os
 
 # Created a custom exception for Privacy input
 class PrivacyException(Exception):
@@ -17,16 +21,19 @@ class SpotifyInterface:
         self.CLIENT_SCOPE = scope
         self.USERNAME = username
         self.REDIRECT_URI = redirectURI
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.CLIENT_ID,client_secret=self.CLIENT_SECRET,redirect_uri=self.REDIRECT_URI,scope=self.CLIENT_SCOPE))
+        
 
     playlist_name = ""
     playlist_description = ""
     playlist_privacy = ""
     playlist_publicy = False
 
+    logsDirectory = os.getcwd() + "/logs"
+
     def CreatePlaylist(self,playlist_name,playlist_description,playlist_privacy):
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.CLIENT_ID,client_secret=self.CLIENT_SECRET,redirect_uri=self.REDIRECT_URI,scope=self.CLIENT_SCOPE))
         if (playlist_privacy.lower() == "public"):
-            playlistPublicy = True
+            self.playlistPublicy = True
         elif (playlist_privacy.lower() == "private"):
             pass
         elif (playlist_privacy.lower() == ""):
@@ -34,4 +41,35 @@ class SpotifyInterface:
         else:
             raise PrivacyException
         
-        sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy,description=playlist_description)
+        self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy,description=playlist_description)
+
+    def LogTracks(self, tracks):
+        out_file = open(
+            str(self.logsDirectory + "/" + datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f")) + ".txt", "w")
+        for missedTrack in tracks:
+            out_file.writelines(missedTrack + "\n")
+        out_file.close()
+
+        list_of_files = glob.glob(self.logsDirectory)
+        latest_file = max(list_of_files, key=os.path.getctime)
+
+        if (len(tracks) == 0):
+            print(colorMessage(color.SUCCESS, f"All songs added onto your new spotify playlist {self.playlist_name}"))
+        else:
+            print(colorMessage(color.ERROR, f"All songs that can't be found have been added to {latest_file} in /logs"))
+
+    def AddToPlaylist(self,tracks):
+        tracksQuery = []
+        notFound = []
+        for track in tracks:
+            result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
+            if (len(result['tracks']['items']) != 0):
+                tracksQuery.append(result['tracks']['items'][0]['uri'])
+            else:
+                print(colorMessage(color.ERROR, "Could not find song"), colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                notFound.append("Could not find song " + track[1] + " by " + track[0])
+        getRecentPlaylist = self.sp.user_playlists(self.USERNAME)
+        playlistID = getRecentPlaylist['items'][0]['id']
+        self.sp.user_playlist_add_tracks(user=self.USERNAME, playlist_id=playlistID, tracks=tracksQuery)
+        self.LogTracks(notFound)
+
