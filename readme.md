@@ -54,7 +54,7 @@ exactly how I have it setup.
 
 Create a ```configs.py``` and add ```CLIENT_ID```, ```CLIENT_SECRET``` and ```REDIRECT_URI``` from
 your [Spotify Developer](https://developer.spotify.com/dashboard/login) dashboard after creating an
-app. Then add ```SCOPE = "playlist-modify-public,playlist-modify-private"``` if you want to add you own functionality then look at the (authorization scopes)[https://music.apple.com/gb/playlist/car-playlist/pl.u-e98lkMKhad8Er2b]  and go to your spotify
+app. Then add ```SCOPE = "playlist-modify-public,playlist-modify-private"``` if you want to add you own functionality then look at the (authorization scopes)[https://developer.spotify.com/documentation/general/guides/authorization/scopes/]  and go to your spotify
 account to find your ```username``` and add that to ```configs.py```.
 
 To find Apple Music playlist link go to an Apple Music playlist on your iPhone, go to the top right ```...
