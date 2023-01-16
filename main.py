@@ -21,7 +21,7 @@ class InvalidURLException(Exception):
         print(colorMessage(color.ERROR, message))
 
 
-interface = SpotifyInterface(CLIENT_ID, CLIENT_SECRET, SCOPE, USERNAME, REDIRECT_URI)
+spotifyInterface = SpotifyInterface(CLIENT_ID, CLIENT_SECRET, SCOPE, USERNAME, REDIRECT_URI)
 
 logsDirectory = os.getcwd()+"/logs"
 
@@ -64,27 +64,28 @@ print(colorMessage(color.SUCCESS, "Playlist found!"))
 # Parsing the HTML
 soup = BeautifulSoup(r.content, 'html.parser')
 
+# List Comprehension: Same as using:
+# for item in someList:
+#   otherList.append(item.something)
+
+
 trackTitleHTML = soup.findAll('div', class_='songs-list-row__song-name')
+tracks = [item.string for item in trackTitleHTML]
+
 trackArtistsHTML = soup.findAll('div', class_="songs-list-row__by-line svelte-1yo4jst")
-trackArtistItems = []
-tracks = []
+trackArtistItems = [item.find_all('a') for item in trackArtistsHTML]
+
 songsToAdd = []
 
 playlist_name = input("Enter a playlist name: ")
 playlist_description = input("Enter a playlist description: ")
 playlist_privacy = input("Playlist Privacy Public/Private (default is private just leave empty):")
 
-interface.CreatePlaylist(playlist_name,playlist_description,playlist_privacy)
+spotifyInterface.CreatePlaylist(playlist_name,playlist_description,playlist_privacy)
 
-for item in trackArtistsHTML:
-    trackArtistItems.append(item.find_all('a'))
-
-for i in trackTitleHTML:
-    tracks.append(i.string)
-
-count = 1
+count = 0
 for item in trackArtistItems:
-    songsToAdd.append([item[0].string, tracks[count - 1]])
+    songsToAdd.append([item[0].string, tracks[count]])
     count += 1
 
-interface.AddToPlaylist(songsToAdd)
+spotifyInterface.AddToPlaylist(songsToAdd)
