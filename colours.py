@@ -4,5 +4,6 @@ class color:
     ERROR = '\033[1;31;48m'
     RESET = '\u001b[0m'
 
+
 def colorMessage(inputColor, message):
     return f"{inputColor} {message} {color.RESET}"
