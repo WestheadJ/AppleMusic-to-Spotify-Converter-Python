@@ -52,10 +52,17 @@ Deactivation: ```[my-venv-directory]\Scripts\deactivate.bat```
 Whilst the environment is active use ```pip install -r requirments.txt``` this should set up the venv
 exactly how I have it setup. 
 
+#### Configs
+
 Create a ```configs.py``` and add ```CLIENT_ID```, ```CLIENT_SECRET``` and ```REDIRECT_URI``` from
 your [Spotify Developer](https://developer.spotify.com/dashboard/login) dashboard after creating an
-app. Then add ```SCOPE = "playlist-modify-public,playlist-modify-private"``` if you want to add you own functionality then look at the (authorization scopes)[https://music.apple.com/gb/playlist/car-playlist/pl.u-e98lkMKhad8Er2b]  and go to your spotify
-account to find your ```username``` and add that to ```configs.py```.
+app and go to your [Spotify Account](https://www.spotify.com/uk/account/overview) to find your ```username``` and add that to ```configs.py```.
+
+#### Configs - Scopes
+Scopes are used in authentication, it's asking if the user allows the program to access what it needs with these scopes. The current ones needed are: 
+```SCOPE = "playlist-modify-public,playlist-modify-private"``` 
+
+> *NOTE: if you want to add you own functionality then look at the (authorization scopes)[https://developer.spotify.com/documentation/general/guides/authorization/scopes/]*
 
 To find Apple Music playlist link go to an Apple Music playlist on your iPhone, go to the top right ```...
 -> Share Playlist... -> copy``` and paste that to somewhere or in the prompt for the URL.
@@ -65,3 +72,4 @@ To find Apple Music playlist link go to an Apple Music playlist on your iPhone, 
 - Make sure over 100 songs can be added to a playlist (SpotifyAPI states it's not alloweds)
 - A website version
 - A C# version
+
