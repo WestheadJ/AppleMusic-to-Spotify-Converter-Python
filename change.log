@@ -1,0 +1,7 @@
+- Creating a change log 16.01.22
+- Added an interface class for working with spotipy and spotify 16.01.22
+- Added a configs section in the read.me
+- Exceptions were added for custom error messages 16.01.22
+- Colours were added to distinguish errors, successes and identifiers 16.01.22
+- Added an AppleMusicInterface to interact with the Apple Music website 17.01.23
+
