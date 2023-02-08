@@ -36,6 +36,7 @@ class SpotifyInterface:
     logsDirectory = os.getcwd() + "/logs"
 
     def CreatePlaylist(self, playlist_name, playlist_description, playlist_privacy):
+        """Used to create a playlist for the user"""
         if (playlist_privacy.lower() == "public"):
             self.playlistPublicy = True
         elif (playlist_privacy.lower() == "private"):
@@ -49,25 +50,26 @@ class SpotifyInterface:
 
 
     def AddToPlaylist(self,tracks):
+        """Used to add songs to the set playlist"""
         tracksQuery = []
         notFound = []
+
         for track in tracks:
-            print("search", track)
+            result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
+            if (len(result['tracks']['items']) != 0):
+                tracksQuery.append(result['tracks']['items'][0]['uri'])
+            else:
+                print(colorMessage(color.ERROR, "Could not find song"),
+                      colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                notFound.append("Could not find song " + track[1] + " by " + track[0])
 
-            # result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
-            # if (len(result['tracks']['items']) != 0):
-            #     tracksQuery.append(result['tracks']['items'][0]['uri'])
-            # else:
-            #     print(colorMessage(color.ERROR, "Could not find song"),
-            #           colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
-            #     notFound.append("Could not find song " + track[1] + " by " + track[0])
-
-        # playlistID = self.playlist['id']
-        # self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
-        # self.LogTracks(notFound)
+        playlistID = self.playlist['id']
+        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
+        self.LogTracks(notFound)
 
 
     def LogTracks(self, tracks):
+        """Used to log tracks that it can't find on spotify"""
         out_file = open(
             str(self.logsDirectory + "/" + datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f")) + ".txt", "w")
         for missedTrack in tracks:
@@ -83,12 +85,19 @@ class SpotifyInterface:
             print(colorMessage(color.ERROR, f"All songs that can't be found have been added to {latest_file} in /logs"))
 
     def GetUserPlaylist(self):
+        """Used to get the users playlists"""
+
         playlists = []
         usersPlaylists = self.sp.user_playlists(self.username)
+
         count = 0
         for item in usersPlaylists['items']:
             count += 1
             playlists.append([item['name'],item['id']])
+
+        # The request query returns a dictionary with the key 'next' and the value gives back the offset and the limit
+        # needed to get the rest of the playlists
+
         while (usersPlaylists['next'] != None):
             parameters = usersPlaylists['next'].split('?')[1]
             splitParameters = parameters.split('&')
@@ -98,5 +107,6 @@ class SpotifyInterface:
             for item in usersPlaylists['items']:
                 count += 1
                 playlists.append([item['name'],item['id']])
+
         return playlists
 
