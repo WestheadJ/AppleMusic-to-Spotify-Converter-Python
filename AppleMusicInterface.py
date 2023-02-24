@@ -67,7 +67,7 @@ class AppleMusicInterface:
         trackTitleHTML = soup.findAll('div', class_='songs-list-row__song-name')
         self.playlistTrackTitles = [item.string for item in trackTitleHTML]
 
-        trackArtistsHTML = soup.findAll('div', class_="songs-list-row__by-line svelte-1yo4jst")
+        trackArtistsHTML = soup.findAll('div', class_="songs-list-row__by-line")
         self.playlistTrackArtists = [item.find_all('a') for item in trackArtistsHTML]
 
         songsToAdd = []
