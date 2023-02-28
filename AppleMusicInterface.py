@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 # Created custom exception for URL
 
 class InvalidURLException(Exception):
-    "Raised when an invalid URL (non Apple Music link) is entered"
+    """Raised when an invalid URL (non Apple Music link) is entered"""
     def __init__(self):
         message = """
         Error URL is incorrect!!! This means that it may not contain,
@@ -19,35 +19,44 @@ class InvalidURLException(Exception):
         print(colorMessage(color.ERROR, message))
 
 class AppleMusicInterface:
+
     playlistTrackTitles = []
     playlistTrackArtists = []
 
     def GetPlaylist(self,URL):
+        """Gets the apple playlist, needs URL of Apple Music playlist passing in"""
         # Splits the inputted url into parts:
         # if entered correctly e.g. https://music.apple.com or http://music.apple.com
         # parts = ["https", "", "music.apple.com"] or ["http", "", "music.apple.com"]
+
+        print(URL)
+        if(len(URL)<8):
+            raise InvalidURLException
         parts = URL.split("/")
 
-        validDomains = ["music.apple.com"]
+        # DEBUG
+        # print(parts)
 
+        validDomains = ["music.apple.com"]
+        
         # // not included in allowed protocols due to them being validated in parts which splits on /
         allowedProtocols = ["https:", "http:"]
-
+        
         protocolsOk = parts[0] in allowedProtocols
-
+        
         if not protocolsOk and parts[0] in validDomains:
             URL = f"https://{URL}"
-
+        
         parts =URL.split("/")
         protocolsOk = parts[0] in allowedProtocols
         domainOk = parts[2] in validDomains and "playlist" in parts
-
+        
         if protocolsOk and domainOk:
             # Making a GET request
             request = requests.get(URL)
         else:
             raise InvalidURLException
-
+        
         # If page not found
         if (request.status_code == 404):
             print("STATUS BAD")
@@ -69,6 +78,10 @@ class AppleMusicInterface:
 
         trackArtistsHTML = soup.findAll('div', class_="songs-list-row__by-line")
         self.playlistTrackArtists = [item.find_all('a') for item in trackArtistsHTML]
+
+        # DEBUGS:
+        # print(self.playlistTrackArtists)
+        # print(self.playlistTrackTitles)
 
         songsToAdd = []
         count = 0

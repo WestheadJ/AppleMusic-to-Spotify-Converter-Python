@@ -5,11 +5,21 @@ import datetime
 import glob
 import os
 
+AUTH_URL = 'https://accounts.spotify.com/authorize'
+TOKEN_URL = 'https://accounts.spotify.com/api/token'
+BASE_URL = 'https://api.spotify.com/v1/'
+
 # Created a custom exception for Privacy input
 class PrivacyException(Exception):
     "Raised when the Playlist privacy input is incorrectly entered"
     def __init__(self):
         message = f"You need to have entered public or private as your playlists type\nYou Entered: {self.playlist_privacy}"
+        print(colorMessage(color.ERROR, message))
+
+class PlaylistNotGiven(Exception):
+    """Raised when there is no ID to be found"""
+    def __init__(self):
+        message = f"No ID has been set or the createdPlaylist isn't a boolean value, either set the ID by the most recently created playlist or through a current playlist ID"
         print(colorMessage(color.ERROR, message))
 
 class SpotifyInterface:
@@ -22,7 +32,7 @@ class SpotifyInterface:
         self.USERNAME = username
         self.REDIRECT_URI = redirectURI
         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.CLIENT_ID,client_secret=self.CLIENT_SECRET,redirect_uri=self.REDIRECT_URI,scope=self.CLIENT_SCOPE))
-        
+
 
     playlist_name = ""
     playlist_description = ""
@@ -32,6 +42,7 @@ class SpotifyInterface:
     logsDirectory = os.getcwd() + "/logs"
 
     def CreatePlaylist(self, playlist_name, playlist_description, playlist_privacy):
+        """Used to create a playlist for the user"""
         if (playlist_privacy.lower() == "public"):
             self.playlistPublicy = True
         elif (playlist_privacy.lower() == "private"):
@@ -44,24 +55,36 @@ class SpotifyInterface:
         self.playlist = self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy, description=playlist_description)
 
 
-    def AddToPlaylist(self,tracks):
+    def AddToPlaylist(self,tracks,createdPlaylist=True,playlist_id=""):
+        """Used to add songs to the set playlist. Takes tracks and createdPlaylist (is it a new playlist) as parameters default is True, if it's to a pre-existing playlist then needs to be set to False"""
+
         tracksQuery = []
         notFound = []
+
+        if createdPlaylist == True:
+            playlistID = self.playlist['id']
+        elif createdPlaylist == False:
+            playlistID = playlist_id
+        else:
+            raise PlaylistNotGiven     
+        
         for track in tracks:
             result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
             if (len(result['tracks']['items']) != 0):
                 tracksQuery.append(result['tracks']['items'][0]['uri'])
             else:
                 print(colorMessage(color.ERROR, "Could not find song"),
-                      colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                    colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
                 notFound.append("Could not find song " + track[1] + " by " + track[0])
 
-        playlistID = self.playlist['id']
-        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery, position=None)
-        self.LogTracks(notFound)
-
+        if playlistID == "":
+            raise PlaylistNotGiven
+        else:
+            self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
+            self.LogTracks(notFound)
 
     def LogTracks(self, tracks):
+        """Used to log tracks that it can't find on spotify"""
         out_file = open(
             str(self.logsDirectory + "/" + datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f")) + ".txt", "w")
         for missedTrack in tracks:
@@ -75,3 +98,29 @@ class SpotifyInterface:
             print(colorMessage(color.SUCCESS, f"All songs added onto your new spotify playlist {self.playlist_name}"))
         else:
             print(colorMessage(color.ERROR, f"All songs that can't be found have been added to {latest_file} in /logs"))
+
+    def GetUserPlaylist(self):
+        """Used to get the users playlists"""
+
+        playlists = []
+        usersPlaylists = self.sp.user_playlists(self.username)
+
+        count = 0
+        for item in usersPlaylists['items']:
+            count += 1
+            playlists.append([item['name'],item['id']])
+
+        # The request query returns a dictionary with the key 'next' and the value gives back the offset and the limit
+        # needed to get the rest of the playlists
+
+        while (usersPlaylists['next'] != None):
+            parameters = usersPlaylists['next'].split('?')[1]
+            splitParameters = parameters.split('&')
+            offset = splitParameters[0].split("=")[1]
+            limit = splitParameters[1].split('=')[1]
+            usersPlaylists = self.sp.user_playlists(self.username,limit,offset)
+            for item in usersPlaylists['items']:
+                count += 1
+                playlists.append([item['name'],item['id']])
+
+        return playlists
