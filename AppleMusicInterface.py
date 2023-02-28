@@ -30,39 +30,40 @@ class AppleMusicInterface:
         # parts = ["https", "", "music.apple.com"] or ["http", "", "music.apple.com"]
 
         print(URL)
-        if(len(URL[0])<8):
+        if(len(URL)<8):
             raise InvalidURLException
         parts = URL.split("/")
 
-        print(parts)
+        # DEBUG
+        # print(parts)
 
-        # validDomains = ["music.apple.com"]
-        #
-        # # // not included in allowed protocols due to them being validated in parts which splits on /
-        # allowedProtocols = ["https:", "http:"]
-        #
-        # protocolsOk = parts[0] in allowedProtocols
-        #
-        # if not protocolsOk and parts[0] in validDomains:
-        #     URL = f"https://{URL}"
-        #
-        # parts =URL.split("/")
-        # protocolsOk = parts[0] in allowedProtocols
-        # domainOk = parts[2] in validDomains and "playlist" in parts
-        #
-        # if protocolsOk and domainOk:
-        #     # Making a GET request
-        #     request = requests.get(URL)
-        # else:
-        #     raise InvalidURLException
-        #
-        # # If page not found
-        # if (request.status_code == 404):
-        #     print("STATUS BAD")
-        #     raise InvalidURLException
-        # else:
-        #     print(colorMessage(color.SUCCESS, "Playlist found!"))
-        #     return request
+        validDomains = ["music.apple.com"]
+        
+        # // not included in allowed protocols due to them being validated in parts which splits on /
+        allowedProtocols = ["https:", "http:"]
+        
+        protocolsOk = parts[0] in allowedProtocols
+        
+        if not protocolsOk and parts[0] in validDomains:
+            URL = f"https://{URL}"
+        
+        parts =URL.split("/")
+        protocolsOk = parts[0] in allowedProtocols
+        domainOk = parts[2] in validDomains and "playlist" in parts
+        
+        if protocolsOk and domainOk:
+            # Making a GET request
+            request = requests.get(URL)
+        else:
+            raise InvalidURLException
+        
+        # If page not found
+        if (request.status_code == 404):
+            print("STATUS BAD")
+            raise InvalidURLException
+        else:
+            print(colorMessage(color.SUCCESS, "Playlist found!"))
+            return request
 
     def GetSongs(self,request):
         # Parsing the HTML

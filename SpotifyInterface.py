@@ -16,6 +16,12 @@ class PrivacyException(Exception):
         message = f"You need to have entered public or private as your playlists type\nYou Entered: {self.playlist_privacy}"
         print(colorMessage(color.ERROR, message))
 
+class PlaylistNotGiven(Exception):
+    """Raised when there is no ID to be found"""
+    def __init__(self):
+        message = f"No ID has been set or the createdPlaylist isn't a boolean value, either set the ID by the most recently created playlist or through a current playlist ID"
+        print(colorMessage(color.ERROR, message))
+
 class SpotifyInterface:
 
     def __init__(self, clientID, clientSecret, scope, username, redirectURI):
@@ -49,24 +55,33 @@ class SpotifyInterface:
         self.playlist = self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy, description=playlist_description)
 
 
-    def AddToPlaylist(self,tracks):
-        """Used to add songs to the set playlist"""
+    def AddToPlaylist(self,tracks,createdPlaylist=True,playlist_id=""):
+        """Used to add songs to the set playlist. Takes tracks and createdPlaylist (is it a new playlist) as parameters default is True, if it's to a pre-existing playlist then needs to be set to False"""
+
         tracksQuery = []
         notFound = []
 
+        if createdPlaylist == True:
+            playlistID = self.playlist['id']
+        elif createdPlaylist == False:
+            playlistID = playlist_id
+        else:
+            raise PlaylistNotGiven     
+        
         for track in tracks:
             result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
             if (len(result['tracks']['items']) != 0):
                 tracksQuery.append(result['tracks']['items'][0]['uri'])
             else:
                 print(colorMessage(color.ERROR, "Could not find song"),
-                      colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                    colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
                 notFound.append("Could not find song " + track[1] + " by " + track[0])
 
-        playlistID = self.playlist['id']
-        self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
-        self.LogTracks(notFound)
-
+        if playlistID == "":
+            raise PlaylistNotGiven
+        else:
+            self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
+            self.LogTracks(notFound)
 
     def LogTracks(self, tracks):
         """Used to log tracks that it can't find on spotify"""
@@ -109,4 +124,3 @@ class SpotifyInterface:
                 playlists.append([item['name'],item['id']])
 
         return playlists
-
