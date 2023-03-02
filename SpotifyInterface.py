@@ -60,6 +60,7 @@ class SpotifyInterface:
 
         tracksQuery = []
         notFound = []
+        found = []
 
         if createdPlaylist == True:
             playlistID = self.playlist['id']
@@ -72,6 +73,8 @@ class SpotifyInterface:
             result = self.sp.search(q="artist:" + track[0] + " track:" + track[1], type="track")
             if (len(result['tracks']['items']) != 0):
                 tracksQuery.append(result['tracks']['items'][0]['uri'])
+                print(colorMessage(color.SUCCESS, "Found the song: "),colorMessage(color.KEY,f"{track[1]} by {track[0]}"))
+                found.append(f"Found song {track[1]} by {track[0]}")
             else:
                 print(colorMessage(color.ERROR, "Could not find song"),
                     colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
@@ -81,20 +84,26 @@ class SpotifyInterface:
             raise PlaylistNotGiven
         else:
             self.sp.playlist_add_items(playlist_id=playlistID, items=tracksQuery)
-            self.LogTracks(notFound)
+            self.LogTracks(notFound,found)
 
-    def LogTracks(self, tracks):
+    def LogTracks(self,unfoundTracks,foundTracks):
         """Used to log tracks that it can't find on spotify"""
         out_file = open(
             str(self.logsDirectory + "/" + datetime.datetime.now().strftime("%a-%d-%b-%Y_%H-%M-%S-%f")) + ".txt", "w")
-        for missedTrack in tracks:
+        out_file.writelines("***** Songs not found *****\n")
+        for missedTrack in unfoundTracks:
             out_file.writelines(missedTrack + "\n")
+        out_file.writelines("***** ___END___ *****\n")
+        out_file.writelines("***** Songs found *****\n")
+        for trackFound in foundTracks:
+            out_file.writelines(trackFound+"\n")
+        out_file.writelines("***** ___END___ *****\n")
         out_file.close()
 
         list_of_files = glob.glob(self.logsDirectory)
         latest_file = max(list_of_files, key=os.path.getctime)
 
-        if (len(tracks) == 0):
+        if (len(unfoundTracks) == 0):
             print(colorMessage(color.SUCCESS, f"All songs added onto your new spotify playlist {self.playlist_name}"))
         else:
             print(colorMessage(color.ERROR, f"All songs that can't be found have been added to {latest_file} in /logs"))

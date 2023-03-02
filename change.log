@@ -4,4 +4,5 @@
 - Exceptions were added for custom error messages 16.01.22
 - Colours were added to distinguish errors, successes and identifiers 16.01.22
 - Added an AppleMusicInterface to interact with the Apple Music website 17.01.23
-
+- Added a feature to add to an existing playlist 28.02.23
+- Added, adding songs that have been found to logs 01.03.23
