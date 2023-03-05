@@ -4,6 +4,7 @@ from colours import color,colorMessage
 import datetime
 import glob
 import os
+import re
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
@@ -54,6 +55,12 @@ class SpotifyInterface:
         
         self.playlist = self.sp.user_playlist_create(user=self.USERNAME, name=playlist_name, public=playlist_privacy, description=playlist_description)
 
+    def clean_string(self, input_string):
+        # Remove parentheses and their contents
+        output_string = re.sub(r'\([^)]*\)', '', input_string)
+        # Remove spaces before and after remaining text
+        output_string = output_string.strip()
+        return output_string
 
     def AddToPlaylist(self,tracks,createdPlaylist=True,playlist_id=""):
         """Used to add songs to the set playlist. Takes tracks and createdPlaylist (is it a new playlist) as parameters default is True, if it's to a pre-existing playlist then needs to be set to False"""
@@ -77,8 +84,18 @@ class SpotifyInterface:
                 found.append(f"Found song {track[1]} by {track[0]}")
             else:
                 print(colorMessage(color.ERROR, "Could not find song"),
-                    colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
-                notFound.append("Could not find song " + track[1] + " by " + track[0])
+                      colorMessage(color.KEY, f"{track[1]} by {track[0]}"))
+                result_alt = self.sp.search(q="artist:" + track[0] + " track:" + self.clean_string(track[1]), type="track")
+                if (len(result_alt['tracks']['items']) != 0):
+                    decision = input('Possible Result: ' +
+                                    result_alt['tracks']['items'][0]['name'] +
+                                    ' by ' + result_alt['tracks']['items'][0]['artists'][0]['name'] +
+                                    '\nType y to confirm\n')
+
+                    if decision == 'y':
+                         tracksQuery.append(result_alt['tracks']['items'][0]['uri'])
+                    else:
+                         notFound.append("Could not find song " + track[1] + " by " + track[0])
 
         if playlistID == "":
             raise PlaylistNotGiven
