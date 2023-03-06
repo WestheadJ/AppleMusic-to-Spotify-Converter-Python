@@ -68,7 +68,6 @@ To find Apple Music playlist link go to an Apple Music playlist on your iPhone, 
 -> Share Playlist... -> copy``` and paste that to somewhere or in the prompt for the URL.
 
 ## Future Updates
-- Add to an existing playlist
 - Make sure over 100 songs can be added to a playlist (SpotifyAPI states it's not alloweds)
 - A website version
 - A C# version
